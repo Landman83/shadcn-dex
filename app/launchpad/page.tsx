@@ -21,6 +21,8 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card"
+import { toast } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 
 function MenuBar({ activeItem, setActiveItem }) {
   const menuItems = [
@@ -59,73 +61,92 @@ function MenuBar({ activeItem, setActiveItem }) {
   );
 }
 
-function TokenPurchaseCard() {
-  const [usdcAmount, setUsdcAmount] = React.useState("");
-  const [skytAmount, setSkytAmount] = React.useState("");
-  
-  const handleUsdcChange = (value: string) => {
-    setUsdcAmount(value);
-    if (value === "") {
-      setSkytAmount("");
-      return;
-    }
-    const skyt = (parseFloat(value) / 70).toFixed(2);
-    setSkytAmount(skyt);
-  };
+function ShareCalculator() {
+  const [shares, setShares] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+  const dollarAmount = shares 
+    ? `$ ${(Math.round(Number(shares) * 70 * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}` 
+    : "$ 0.00";
+  const sharesDisplay = shares ? `${Number(shares).toLocaleString('en-US')}` : "0";
 
-  const handleSkytChange = (value: string) => {
-    setSkytAmount(value);
-    if (value === "") {
-      setUsdcAmount("");
-      return;
-    }
-    const usdc = (parseFloat(value) * 70).toFixed(2);
-    setUsdcAmount(usdc);
+  const handleInvest = async () => {
+    if (!shares) return;
+    
+    setIsLoading(true);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const now = new Date();
+    const formattedDate = now.toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+
+    toast.success(
+      <div>
+        <div className="font-medium">{Number(shares).toLocaleString('en-US')} shares of SKYT purchased</div>
+        <div className="text-sm text-gray-400">{formattedDate}</div>
+      </div>,
+      {
+        action: {
+          label: "Undo",
+          onClick: () => {
+            toast.success("Purchase cancelled");
+          },
+        },
+      }
+    );
+    
+    setIsLoading(false);
   };
 
   return (
-    <Card className="bg-[#0D0D0D] border-0 w-[300px]">
-      <CardHeader>
-        <CardTitle className="text-xl font-space-grotesk">Buy $SKYT</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm text-gray-400">USDC Amount</label>
-          <div className="relative">
-            <Input
-              type="number"
-              placeholder="0.00"
-              value={usdcAmount}
-              onChange={(e) => handleUsdcChange(e.target.value)}
-              className="bg-black/40 border-gray-800"
-            />
-            <div className="absolute right-3 top-2.5 text-sm text-gray-400">
-              USDC
-            </div>
-          </div>
+    <Card className="bg-white/5 border-0 w-[300px] shadow-lg transition-all duration-200">
+      <CardContent className="p-6 flex flex-col min-h-[300px] justify-between">
+        <div>
+          <div className="text-base text-gray-400 mb-2">Number of Shares</div>
+          
+          <Input
+            type="number"
+            placeholder="0"
+            value={shares}
+            onChange={(e) => setShares(e.target.value)}
+            className="!text-[24px] font-space-grotesk bg-[#111111] border border-gray-800 rounded-md px-4 py-2 text-right w-full h-[56px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
         </div>
-        
-        <div className="space-y-2">
-          <label className="text-sm text-gray-400">SKYT Amount</label>
-          <div className="relative">
-            <Input
-              type="number"
-              placeholder="0.00"
-              value={skytAmount}
-              onChange={(e) => handleSkytChange(e.target.value)}
-              className="bg-black/40 border-gray-800"
-            />
-            <div className="absolute right-3 top-2.5 text-sm text-gray-400">
-              SKYT
+
+        <div>
+          <div className={`overflow-hidden transition-all duration-200 ${shares ? 'max-h-[200px] opacity-100 mb-4' : 'max-h-0 opacity-0'}`}>
+            <div className="bg-[#111111] rounded-md p-3">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[10px] text-gray-400">Total Cost:</span>
+                <span className="text-lg font-space-grotesk">{dollarAmount}</span>
+              </div>
+              <div className="text-xs text-gray-500">
+                {sharesDisplay} shares × $70 per share
+              </div>
             </div>
           </div>
+
+          <button 
+            onClick={handleInvest}
+            disabled={isLoading || !shares}
+            className="w-full bg-white text-black py-3 rounded-md font-medium hover:bg-gray-100 transition-colors relative"
+          >
+            {isLoading ? (
+              <div className="h-5 w-5 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto"/>
+            ) : (
+              "Invest"
+            )}
+          </button>
         </div>
       </CardContent>
-      <CardFooter>
-        <button className="w-full bg-white text-black py-2 rounded-md font-medium hover:bg-gray-100 transition-colors">
-          Invest
-        </button>
-      </CardFooter>
     </Card>
   );
 }
@@ -327,7 +348,7 @@ export default function LaunchpadPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-4 mt-8">
+                  <div className="grid grid-cols-4 gap-4 mt-16">
                     <div className="bg-[#0D0D0D] p-4 rounded-lg">
                       <div className="text-2xl font-space-grotesk">$70.00</div>
                       <div className="text-sm text-gray-400">Price per Share</div>
@@ -354,7 +375,7 @@ export default function LaunchpadPage() {
                   </div>
                 </div>
               </div>
-              <TokenPurchaseCard />
+              <ShareCalculator />
             </div>
           </div>
 
@@ -366,6 +387,7 @@ export default function LaunchpadPage() {
           </div>
         </div>
       </main>
+      <Toaster />
     </div>
   )
 }
