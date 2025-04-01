@@ -107,47 +107,50 @@ function ShareCalculator() {
   };
 
   return (
-    <Card className="bg-white/5 border-0 w-[300px] shadow-lg transition-all duration-200">
-      <CardContent className="p-6 flex flex-col min-h-[300px] justify-between">
-        <div>
-          <div className="text-base text-gray-400 mb-2">Number of Shares</div>
-          
-          <Input
-            type="number"
-            placeholder="0"
-            value={shares}
-            onChange={(e) => setShares(e.target.value)}
-            className="!text-[24px] font-space-grotesk bg-[#111111] border border-gray-800 rounded-md px-4 py-2 text-right w-full h-[56px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          />
-        </div>
-
-        <div>
-          <div className={`overflow-hidden transition-all duration-200 ${shares ? 'max-h-[200px] opacity-100 mb-4' : 'max-h-0 opacity-0'}`}>
-            <div className="bg-[#111111] rounded-md p-3">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-[10px] text-gray-400">Total Cost:</span>
-                <span className="text-lg font-space-grotesk">{dollarAmount}</span>
-              </div>
-              <div className="text-xs text-gray-500">
-                {sharesDisplay} shares × $70 per share
-              </div>
+    <div>
+      <div>
+        <div className="text-white italic font-medium text-xl mb-4">Buy $SKYT</div>
+        <Card className={`bg-white/5 border-0 w-[300px] shadow-lg transition-all duration-300 ${Number(shares) > 0 ? 'min-h-[300px]' : 'min-h-[160px]'}`}>
+          <CardContent className={`p-4 flex flex-col transition-all duration-300 ${Number(shares) > 0 ? 'gap-8' : 'gap-0'}`}>
+            <div>
+              <div className="text-base text-gray-400 mb-2">Number of Shares</div>
+              
+              <Input
+                type="number"
+                placeholder="0"
+                value={shares}
+                onChange={(e) => setShares(e.target.value)}
+                className="!text-[24px] font-space-grotesk bg-[#111111] border border-gray-800 rounded-md px-4 py-2 text-right w-full h-[56px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
             </div>
-          </div>
 
-          <button 
-            onClick={handleInvest}
-            disabled={isLoading || !shares}
-            className="w-full bg-white text-black py-3 rounded-md font-medium hover:bg-gray-100 transition-colors relative"
-          >
-            {isLoading ? (
-              <div className="h-5 w-5 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto"/>
-            ) : (
-              "Invest"
-            )}
-          </button>
-        </div>
-      </CardContent>
-    </Card>
+            <div className={`transition-all duration-300 ${Number(shares) > 0 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none absolute'}`}>
+              <div className="bg-[#111111] rounded-md p-3 mb-4">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] text-gray-400">Total Cost:</span>
+                  <span className="text-lg font-space-grotesk">{dollarAmount}</span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {sharesDisplay} shares × $70 per share
+                </div>
+              </div>
+
+              <button 
+                onClick={handleInvest}
+                disabled={isLoading}
+                className="w-full bg-white text-black py-3 rounded-md font-medium hover:bg-gray-100 transition-colors relative"
+              >
+                {isLoading ? (
+                  <div className="h-5 w-5 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto"/>
+                ) : (
+                  "Invest"
+                )}
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
 
