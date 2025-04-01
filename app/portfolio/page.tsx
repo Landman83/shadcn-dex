@@ -38,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { TradeSheet } from "@/components/ui/trade-sheet"
 
 // Generate 3 months of daily data with upward trend in hundreds of thousands
 const generateDailyData = () => {
@@ -213,7 +214,21 @@ const cashData = [
   { id: "cash_3", account: "Reserve", type: "Money Market", balance: "$100,000.00" },
 ];
 
-function TableContent({ activeItem }) {
+interface EquityItem {
+  id: string
+  symbol: string
+  name: string
+  marketCap: string
+  price: string
+  shares: string
+  value: string
+  pnl: string
+}
+
+function TableContent({ activeItem, onTradeClick }: { 
+  activeItem: string, 
+  onTradeClick: (item: EquityItem) => void 
+}) {
   switch (activeItem) {
     case "Equity":
       return (
@@ -245,7 +260,10 @@ function TableContent({ activeItem }) {
                   {item.pnl}
                 </TableCell>
                 <TableCell className="text-right">
-                  <button className="px-3 py-1 text-base font-space-grotesk bg-transparent border border-white text-white rounded hover:bg-white hover:text-black transition-colors">
+                  <button 
+                    onClick={() => onTradeClick(item)}
+                    className="px-3 py-1 text-base font-space-grotesk bg-transparent border border-white text-white rounded hover:bg-white hover:text-black transition-colors"
+                  >
                     Trade
                   </button>
                 </TableCell>
@@ -316,6 +334,13 @@ const transactions = [
 
 export default function Home() {
   const [activeItem, setActiveItem] = React.useState("Equity");
+  const [isTradeSheetOpen, setIsTradeSheetOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState<EquityItem | null>(null);
+
+  const handleTradeClick = (item: EquityItem) => {
+    setSelectedItem(item);
+    setIsTradeSheetOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground p-8">
@@ -412,13 +437,29 @@ export default function Home() {
       
       <main className="mt-8 w-full flex justify-center">
         <div className="w-full max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-8">
             <ChartComponent />
-            <div className="md:col-span-2">
+            <div>
               <MenuBar activeItem={activeItem} setActiveItem={setActiveItem} />
-              <TableContent activeItem={activeItem} />
+              <TableContent 
+                activeItem={activeItem} 
+                onTradeClick={handleTradeClick}
+              />
             </div>
           </div>
+
+          {selectedItem && (
+            <TradeSheet
+              isOpen={isTradeSheetOpen}
+              onClose={() => {
+                setIsTradeSheetOpen(false);
+                setSelectedItem(null);
+              }}
+              symbol={selectedItem.symbol}
+              currentPrice={parseFloat(selectedItem.price.replace('$', ''))}
+              currentShares={parseInt(selectedItem.shares.replace(',', ''))}
+            />
+          )}
         </div>
       </main>
     </div>
