@@ -39,6 +39,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { TradeSheet } from "@/components/ui/trade-sheet"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Generate 3 months of daily data with upward trend in hundreds of thousands
 const generateDailyData = () => {
@@ -86,72 +87,113 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+// Add these near the top with other data structures
+const accountStats = {
+  portfolioValue: "$589.3K",
+  cash: "$175.0K",
+  performance24h: "+2.1%",
+  performance30d: "+12.3%",
+  annualizedReturn: "+31.5%"
+};
+
+// Add open orders data structure
+const openOrdersData = [
+  { 
+    id: "order_1", 
+    symbol: "SKYT",
+    type: "Limit Buy",
+    price: "$83.50",
+    shares: "500",
+    value: "$41,750.00",
+    date: "2024-03-29",
+    status: "Open"
+  },
+  { 
+    id: "order_2", 
+    symbol: "NMA",
+    type: "Limit Sell",
+    price: "$39.00",
+    shares: "1000",
+    value: "$39,000.00",
+    date: "2024-03-28",
+    status: "Open"
+  }
+];
+
 function ChartComponent() {
+  const [timeframe, setTimeframe] = React.useState<"1D" | "7D" | "1M" | "3M" | "1Y" | "MAX">("3M");
   const mostRecentValue = chartData[chartData.length - 1].desktop;
   const formattedValue = `$${(mostRecentValue / 1000).toFixed(1)}K`;
 
   return (
     <Card className="border-0 bg-transparent col-span-1 md:col-span-2">
-      <CardHeader className="p-0">
-        <CardTitle className="font-space-grotesk text-3xl flex items-baseline">
-          Portfolio Value: <span className="ml-2">{formattedValue}</span>
-        </CardTitle>
-        <CardDescription className="mb-1">January - March 2024</CardDescription>
-      </CardHeader>
       <CardContent className="p-0">
-        <ChartContainer config={chartConfig} className="!aspect-[4/1]">
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-              top: 5,
-              bottom: 0
-            }}
-            height={60}
-          >
-            <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.1)" />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return `${date.getDate()}/${date.getMonth() + 1}`;
+        <div className="relative">
+          <ChartContainer config={chartConfig} className="!aspect-[4/1]">
+            <LineChart
+              accessibilityLayer
+              data={chartData}
+              margin={{
+                left: 12,
+                right: 12,
+                top: 5,
+                bottom: 40  // Increased bottom margin to make room for tabs
               }}
-              stroke="rgba(255,255,255,0.5)"
-              interval={14}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Line
-              dataKey="desktop"
-              type="natural"
-              stroke="white"
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ChartContainer>
+              height={60}
+            >
+              <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.1)" />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => {
+                  const date = new Date(value);
+                  return `${date.getDate()}/${date.getMonth() + 1}`;
+                }}
+                stroke="rgba(255,255,255,0.5)"
+                interval={14}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Line
+                dataKey="desktop"
+                type="natural"
+                stroke="white"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ChartContainer>
+          
+          {/* Timeframe selector positioned absolutely */}
+          <div className="absolute bottom-0 right-0">
+            <Tabs value={timeframe} onValueChange={(value: any) => setTimeframe(value)} className="w-fit">
+              <TabsList className="bg-[#111111]">
+                <TabsTrigger value="1D">1D</TabsTrigger>
+                <TabsTrigger value="7D">7D</TabsTrigger>
+                <TabsTrigger value="1M">1M</TabsTrigger>
+                <TabsTrigger value="3M">3M</TabsTrigger>
+                <TabsTrigger value="1Y">1Y</TabsTrigger>
+                <TabsTrigger value="MAX">MAX</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        </div>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-1 text-sm p-0">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 12.3% this quarter <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing daily portfolio value for Jan-Mar 2024
-        </div>
-      </CardFooter>
     </Card>
   )
 }
 
-function MenuBar({ activeItem, setActiveItem }) {
-  const menuItems = ["Equity", "Cash", "Transactions"];
+interface MenuBarProps {
+  activeItem: string;
+  setActiveItem: (item: string) => void;
+}
+
+function MenuBar({ activeItem, setActiveItem }: MenuBarProps) {
+  const menuItems = ["Equity", "Cash", "Open Orders", "Transactions"];
 
   return (
     <div className="flex space-x-8 border-b border-gray-700">
@@ -174,7 +216,7 @@ function MenuBar({ activeItem, setActiveItem }) {
   );
 }
 
-// Update the equity data structure with new companies
+// Update the equity data structure to include status
 const equityData = [
   { 
     id: "eq_1", 
@@ -185,6 +227,7 @@ const equityData = [
     shares: "1200",
     value: "$101,100.00",
     pnl: "+21.3%",
+    status: "Locked"
   },
   { 
     id: "eq_2", 
@@ -195,6 +238,7 @@ const equityData = [
     shares: "850",
     value: "$44,625.00",
     pnl: "+12.1%",
+    status: "Tradeable"
   },
   { 
     id: "eq_3", 
@@ -205,6 +249,7 @@ const equityData = [
     shares: "2500",
     value: "$95,625.00",
     pnl: "+28.5%",
+    status: "Tradeable"
   },
 ];
 
@@ -214,6 +259,7 @@ const cashData = [
   { id: "cash_3", account: "Reserve", type: "Money Market", balance: "$100,000.00" },
 ];
 
+// Update the EquityItem interface
 interface EquityItem {
   id: string
   symbol: string
@@ -223,12 +269,16 @@ interface EquityItem {
   shares: string
   value: string
   pnl: string
+  status: "Locked" | "Tradeable"
 }
 
-function TableContent({ activeItem, onTradeClick }: { 
-  activeItem: string, 
-  onTradeClick: (item: EquityItem) => void 
-}) {
+// Add this interface above the TableContent component
+interface TableContentProps {
+  activeItem: string;
+  onTradeClick: (item: EquityItem) => void;
+}
+
+function TableContent({ activeItem, onTradeClick }: TableContentProps) {
   switch (activeItem) {
     case "Equity":
       return (
@@ -242,6 +292,7 @@ function TableContent({ activeItem, onTradeClick }: {
               <TableHead className="text-base font-space-grotesk text-right">Shares</TableHead>
               <TableHead className="text-base font-space-grotesk text-right">Value</TableHead>
               <TableHead className="text-base font-space-grotesk text-right">P&L</TableHead>
+              <TableHead className="text-base font-space-grotesk text-right">Status</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -259,19 +310,25 @@ function TableContent({ activeItem, onTradeClick }: {
                 }`}>
                   {item.pnl}
                 </TableCell>
+                <TableCell className="text-base font-space-grotesk text-right text-gray-400">
+                  {item.status}
+                </TableCell>
                 <TableCell className="text-right">
-                  <button 
-                    onClick={() => onTradeClick(item)}
-                    className="px-3 py-1 text-base font-space-grotesk bg-[#111111] text-white rounded hover:bg-[#222222] transition-colors"
-                  >
-                    Trade
-                  </button>
+                  {item.status === "Tradeable" && (
+                    <button 
+                      onClick={() => onTradeClick(item)}
+                      className="px-3 py-1 text-base font-space-grotesk bg-[#111111] text-white rounded hover:bg-[#222222] transition-colors"
+                    >
+                      Trade
+                    </button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       );
+
     case "Cash":
       return (
         <Table>
@@ -293,6 +350,50 @@ function TableContent({ activeItem, onTradeClick }: {
           </TableBody>
         </Table>
       );
+
+    case "Open Orders":
+      return (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-base font-space-grotesk">Symbol</TableHead>
+              <TableHead className="text-base font-space-grotesk">Type</TableHead>
+              <TableHead className="text-base font-space-grotesk text-right">Price</TableHead>
+              <TableHead className="text-base font-space-grotesk text-right">Shares</TableHead>
+              <TableHead className="text-base font-space-grotesk text-right">Value</TableHead>
+              <TableHead className="text-base font-space-grotesk text-right">Date</TableHead>
+              <TableHead className="text-base font-space-grotesk text-right">Status</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {openOrdersData.map((order) => (
+              <TableRow key={order.id}>
+                <TableCell className="font-medium text-base font-space-grotesk">{order.symbol}</TableCell>
+                <TableCell className={`text-base font-space-grotesk ${
+                  order.type.includes('Buy') ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {order.type}
+                </TableCell>
+                <TableCell className="text-base font-space-grotesk text-right">{order.price}</TableCell>
+                <TableCell className="text-base font-space-grotesk text-right">{order.shares}</TableCell>
+                <TableCell className="text-base font-space-grotesk text-right">{order.value}</TableCell>
+                <TableCell className="text-base font-space-grotesk text-right">{order.date}</TableCell>
+                <TableCell className="text-base font-space-grotesk text-right text-gray-400">{order.status}</TableCell>
+                <TableCell className="text-right">
+                  <button 
+                    onClick={() => {/* Add cancel order handler */}}
+                    className="px-3 py-1 text-base font-space-grotesk bg-[#111111] text-white rounded hover:bg-[#222222] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      );
+
     case "Transactions":
       return (
         <Table>
@@ -318,6 +419,7 @@ function TableContent({ activeItem, onTradeClick }: {
           </TableBody>
         </Table>
       );
+
     default:
       return null;
   }
@@ -437,7 +539,54 @@ export default function Home() {
       
       <main className="mt-8 w-full flex justify-center">
         <div className="w-full max-w-6xl">
-          <div className="grid grid-cols-1 gap-8">
+          <h1 className="text-2xl font-medium mb-4">
+            Hello, Rankin
+          </h1>
+          <div className="grid grid-cols-1 gap-4">
+            {/* Account Statistics */}
+            <div className="grid grid-cols-5 gap-4">
+              <div className="bg-[#111111] rounded-lg p-4">
+                <div className="text-2xl font-medium">
+                  {accountStats.portfolioValue}
+                </div>
+                <div className="text-sm text-gray-400">
+                  Portfolio Value
+                </div>
+              </div>
+              <div className="bg-[#111111] rounded-lg p-4">
+                <div className="text-2xl font-medium">
+                  {accountStats.cash}
+                </div>
+                <div className="text-sm text-gray-400">
+                  Cash
+                </div>
+              </div>
+              <div className="bg-[#111111] rounded-lg p-4">
+                <div className="text-2xl font-medium text-green-400">
+                  {accountStats.performance24h}
+                </div>
+                <div className="text-sm text-gray-400">
+                  24h Performance
+                </div>
+              </div>
+              <div className="bg-[#111111] rounded-lg p-4">
+                <div className="text-2xl font-medium text-green-400">
+                  {accountStats.performance30d}
+                </div>
+                <div className="text-sm text-gray-400">
+                  30D Performance
+                </div>
+              </div>
+              <div className="bg-[#111111] rounded-lg p-4">
+                <div className="text-2xl font-medium text-green-400">
+                  {accountStats.annualizedReturn}
+                </div>
+                <div className="text-sm text-gray-400">
+                  Annualized Return
+                </div>
+              </div>
+            </div>
+
             <ChartComponent />
             <div>
               <MenuBar activeItem={activeItem} setActiveItem={setActiveItem} />
