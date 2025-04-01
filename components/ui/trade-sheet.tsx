@@ -15,10 +15,11 @@ interface TradeSheetProps {
   currentShares?: number
 }
 
+type TabType = "buy" | "sell" | "book" | "trades";
+
 export function TradeSheet({ isOpen, onClose, symbol, currentPrice, currentShares = 0 }: TradeSheetProps) {
-  const [activeTab, setActiveTab] = React.useState<"buy" | "sell" | "book" | "trades">("buy")
+  const [activeTab, setActiveTab] = React.useState<TabType>("buy")
   const [orderType, setOrderType] = React.useState<"market" | "limit">("market")
-  const [tradeType, setTradeType] = React.useState<"buy" | "sell">("buy")
   const [shares, setShares] = React.useState("")
   const [limitPrice, setLimitPrice] = React.useState("")
 
@@ -71,7 +72,7 @@ export function TradeSheet({ isOpen, onClose, symbol, currentPrice, currentShare
   const handleSubmit = async () => {
     // Handle trade submission
     console.log("Trade submitted:", {
-      type: tradeType,
+      type: activeTab,
       orderType,
       shares,
       price: orderType === "market" ? currentPrice : limitPrice
@@ -87,7 +88,11 @@ export function TradeSheet({ isOpen, onClose, symbol, currentPrice, currentShare
 
         <div className="flex flex-col gap-8">
           {/* Buy/Sell/Book/Trades Tabs */}
-          <Tabs value={activeTab} onValueChange={(value: "buy" | "sell" | "book" | "trades") => setActiveTab(value)} className="w-full">
+          <Tabs 
+            value={activeTab} 
+            onValueChange={(value) => setActiveTab(value as TabType)} 
+            className="w-full"
+          >
             <TabsList className="w-full bg-[#111111]">
               <TabsTrigger 
                 value="buy"
@@ -111,7 +116,7 @@ export function TradeSheet({ isOpen, onClose, symbol, currentPrice, currentShare
                 value="book"
                 className={cn(
                   "flex-1",
-                  activeTab === "book" ? "bg-white text-black" : "text-gray-400"
+                  activeTab === "book" ? "bg-white text-white" : "text-gray-400"
                 )}
               >
                 Book
@@ -120,7 +125,7 @@ export function TradeSheet({ isOpen, onClose, symbol, currentPrice, currentShare
                 value="trades"
                 className={cn(
                   "flex-1",
-                  activeTab === "trades" ? "bg-white text-black" : "text-gray-400"
+                  activeTab === "trades" ? "bg-white text-white" : "text-gray-400"
                 )}
               >
                 Trades
@@ -219,13 +224,13 @@ export function TradeSheet({ isOpen, onClose, symbol, currentPrice, currentShare
                 disabled={!shares || (orderType === "limit" && !limitPrice)}
                 className={cn(
                   "w-full py-4 rounded-md font-medium transition-colors",
-                  tradeType === "buy" 
+                  activeTab === "buy" 
                     ? "bg-green-500 text-white hover:bg-green-600" 
                     : "bg-red-500 text-white hover:bg-red-600",
                   (!shares || (orderType === "limit" && !limitPrice)) && "opacity-50 cursor-not-allowed"
                 )}
               >
-                {tradeType === "buy" ? "Buy" : "Sell"} {symbol}
+                {activeTab === "buy" ? "Buy" : "Sell"} {symbol}
               </button>
             </>
           )}
