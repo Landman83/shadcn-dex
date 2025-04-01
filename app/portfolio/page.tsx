@@ -262,7 +262,7 @@ function TableContent({ activeItem, onTradeClick }: {
                 <TableCell className="text-right">
                   <button 
                     onClick={() => onTradeClick(item)}
-                    className="px-3 py-1 text-base font-space-grotesk bg-transparent border border-white text-white rounded hover:bg-white hover:text-black transition-colors"
+                    className="px-3 py-1 text-base font-space-grotesk bg-[#111111] text-white rounded hover:bg-[#222222] transition-colors"
                   >
                     Trade
                   </button>
