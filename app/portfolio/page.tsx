@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/table"
 import { TradeSheet } from "@/components/ui/trade-sheet"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { IdentityStatus } from "@/components/ui/identity-status"
+import { IdentityStatus, useIdentityAddress } from "@/components/ui/identity-status"
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -442,6 +442,7 @@ export default function Home() {
   const [activeItem, setActiveItem] = React.useState("Equity");
   const [isTradeSheetOpen, setIsTradeSheetOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState<EquityItem | null>(null);
+  const identityAddress = useIdentityAddress()
 
   const handleTradeClick = (item: EquityItem) => {
     setSelectedItem(item);
@@ -544,12 +545,21 @@ export default function Home() {
       
       <main className="mt-8 w-full flex justify-center">
         <div className="w-full max-w-6xl">
-          <h1 className="text-2xl font-medium mb-4">
-            Hello, Rankin
-          </h1>
+          <div className="mb-4">
+            <h1 className="text-2xl font-medium">
+              Hello, Rankin
+            </h1>
+            <p className="text-gray-400 text-sm flex items-center gap-2">
+              Address: {identityAddress ? (
+                `${identityAddress.slice(0, 4)}...${identityAddress.slice(-4)}`
+              ) : (
+                <span className="inline-block w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+              )}
+            </p>
+          </div>
           <div className="grid grid-cols-1 gap-4">
             {/* Account Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="bg-[#111111] rounded-lg p-4 md:col-span-1">
                 <div className="text-2xl font-medium">
                   {accountStats.portfolioValue}
@@ -590,9 +600,6 @@ export default function Home() {
                   Annualized Return
                 </div>
               </div>
-              <div className="md:col-span-1">
-                <IdentityStatus />
-              </div>
             </div>
 
             <ChartComponent />
@@ -603,6 +610,11 @@ export default function Home() {
                 onTradeClick={handleTradeClick}
               />
             </div>
+          </div>
+
+          {/* KYC Status moved outside the grid */}
+          <div className="mt-8">
+            <IdentityStatus />
           </div>
 
           {selectedItem && (

@@ -15,6 +15,7 @@ import { Loader2, CheckCircle2, XCircle, Unlock, AlertTriangle } from "lucide-re
 import { ensureUserIdentity } from "@/lib/services/identityService"
 import { useMagic } from "@/hooks/useMagic"
 import { useState, useEffect } from "react"
+import { Label } from "./label"
 
 export function IdentityStatus() {
   const { loading, identityAddress, hasKyc, requestKyc, refreshKycStatus, userAddress } = useIdentity()
@@ -22,6 +23,7 @@ export function IdentityStatus() {
   const [initializingIdentity, setInitializingIdentity] = useState(false)
   const [kycStatus, setKycStatus] = useState<string>('not-verified')
   const [kycRequestPending, setKycRequestPending] = useState(false)
+  const [identityAddressState, setIdentityAddressState] = useState<string>("")
 
   // Check if there's a pending KYC request and poll for updates
   useEffect(() => {
@@ -134,35 +136,33 @@ export function IdentityStatus() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Identity Status</CardTitle>
-        <CardDescription>Your on-chain identity and KYC status</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <div className="text-sm font-medium mb-1">Identity Address:</div>
-          <div className="bg-secondary p-2 rounded text-xs font-mono break-all">
-            {identityAddress || "No identity found"}
+    <Card className="w-full">
+      <CardContent className="pt-6">
+        <div className="space-y-4">
+          <div>
+            <Label>Identity Address:</Label>
+            <div className="mt-1 p-2 bg-black/20 rounded text-sm font-mono">
+              {identityAddress || "Not created"}
+            </div>
           </div>
-        </div>
-        
-        <div>
-          <div className="text-sm font-medium mb-1">KYC Status:</div>
-          <div className="flex items-center space-x-2">
-            {hasKyc ? (
-              <Badge className="bg-green-500">
-                <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Verified
-              </Badge>
-            ) : kycRequestPending ? (
-              <Badge className="bg-blue-500">
-                <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> Pending
-              </Badge>
-            ) : (
-              <Badge className="bg-amber-500">
-                <XCircle className="h-3.5 w-3.5 mr-1" /> Not Verified
-              </Badge>
-            )}
+          
+          <div>
+            <div className="text-sm font-medium mb-1">KYC Status:</div>
+            <div className="flex items-center space-x-2">
+              {hasKyc ? (
+                <Badge className="bg-green-500">
+                  <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Verified
+                </Badge>
+              ) : kycRequestPending ? (
+                <Badge className="bg-blue-500">
+                  <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> Pending
+                </Badge>
+              ) : (
+                <Badge className="bg-amber-500">
+                  <XCircle className="h-3.5 w-3.5 mr-1" /> Not Verified
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>
@@ -185,4 +185,10 @@ export function IdentityStatus() {
       </CardFooter>
     </Card>
   )
+}
+
+// Update the hook to use useIdentity
+export function useIdentityAddress() {
+  const { identityAddress } = useIdentity()
+  return identityAddress || ""
 }
