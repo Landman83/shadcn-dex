@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Space_Grotesk } from 'next/font/google';
+import { MagicProvider } from "@/hooks/useMagic";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased bg-black text-white`}>
       <body>
-        {children}
+        <MagicProvider>
+          {children}
+        </MagicProvider>
       </body>
     </html>
   );
