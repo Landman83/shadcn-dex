@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react";
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { TrendingUp } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
@@ -40,6 +41,9 @@ import {
 } from "@/components/ui/table"
 import { TradeSheet } from "@/components/ui/trade-sheet"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { IdentityStatus } from "@/components/ui/identity-status"
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 // Generate 3 months of daily data with upward trend in hundreds of thousands
 const generateDailyData = () => {
@@ -446,6 +450,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-8">
+      <ToastContainer />
       <header className="w-full flex justify-center">
         <div className="w-full max-w-6xl flex items-center justify-between">
           <div className="flex items-center">
@@ -544,8 +549,8 @@ export default function Home() {
           </h1>
           <div className="grid grid-cols-1 gap-4">
             {/* Account Statistics */}
-            <div className="grid grid-cols-5 gap-4">
-              <div className="bg-[#111111] rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+              <div className="bg-[#111111] rounded-lg p-4 md:col-span-1">
                 <div className="text-2xl font-medium">
                   {accountStats.portfolioValue}
                 </div>
@@ -553,7 +558,7 @@ export default function Home() {
                   Portfolio Value
                 </div>
               </div>
-              <div className="bg-[#111111] rounded-lg p-4">
+              <div className="bg-[#111111] rounded-lg p-4 md:col-span-1">
                 <div className="text-2xl font-medium">
                   {accountStats.cash}
                 </div>
@@ -561,7 +566,7 @@ export default function Home() {
                   Cash
                 </div>
               </div>
-              <div className="bg-[#111111] rounded-lg p-4">
+              <div className="bg-[#111111] rounded-lg p-4 md:col-span-1">
                 <div className="text-2xl font-medium text-green-400">
                   {accountStats.performance24h}
                 </div>
@@ -569,7 +574,7 @@ export default function Home() {
                   24h Performance
                 </div>
               </div>
-              <div className="bg-[#111111] rounded-lg p-4">
+              <div className="bg-[#111111] rounded-lg p-4 md:col-span-1">
                 <div className="text-2xl font-medium text-green-400">
                   {accountStats.performance30d}
                 </div>
@@ -577,13 +582,16 @@ export default function Home() {
                   30D Performance
                 </div>
               </div>
-              <div className="bg-[#111111] rounded-lg p-4">
+              <div className="bg-[#111111] rounded-lg p-4 md:col-span-1">
                 <div className="text-2xl font-medium text-green-400">
                   {accountStats.annualizedReturn}
                 </div>
                 <div className="text-sm text-gray-400">
                   Annualized Return
                 </div>
+              </div>
+              <div className="md:col-span-1">
+                <IdentityStatus />
               </div>
             </div>
 
